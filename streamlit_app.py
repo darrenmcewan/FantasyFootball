@@ -14,7 +14,7 @@ st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season")
 
 max_week = league.current_week
-week = st.slider("Select NFL Week to view", 1,maxWeek, maxWeek)
+week = st.slider("Select NFL Week to view", 1,max_week, max_week)
 
 def team_scores(league, max_week):
     teams = defaultdict()
