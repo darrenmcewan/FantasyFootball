@@ -29,6 +29,6 @@ df = pd.DataFrame.from_dict(scores)
 st.line_chart(df)
 
 fig = px.line(df)
-st.plotly(fig)
+st.plotly_chart(fig)
 
 
