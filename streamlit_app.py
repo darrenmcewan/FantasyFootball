@@ -1,6 +1,3 @@
-from math import degrees
-from msilib import sequence
-from operator import le
 from espn_api.football import League
 import pandas as pd
 import numpy as np
@@ -21,10 +18,13 @@ week = st.slider("Select NFL Week to view", 1,maxWeek, maxWeek)
 
 def team_scores(league, max_week):
     teams = defaultdict()
-    weeks = [i for i in range(1, max_week+1)] 
     for team in league.teams:
-        for week_num in weeks:
-            teams[team.team_name][week_num] = team.scores
-    return teams
+            teams[team.team_name] = team.scores[:max_week-1]
+    return dict(teams)
+
+scores = team_scores(league, max_week)
+
+df = pd.DataFrame.from_dict(scores)
+st.line_chart(df)
 
 
