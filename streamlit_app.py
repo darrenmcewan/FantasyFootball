@@ -4,6 +4,7 @@ import numpy as np
 import requests
 import streamlit as st
 from collections import defaultdict
+import plotly.express as px
 
 league_id = 115999423
 year = 2022
@@ -26,5 +27,8 @@ scores = team_scores(league, week)
 
 df = pd.DataFrame.from_dict(scores)
 st.line_chart(df)
+
+fig = px.line(df)
+st.plotly(fig)
 
 
