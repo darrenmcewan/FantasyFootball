@@ -13,7 +13,7 @@ league = League(league_id, year)
 st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season")
 
-maxWeek = league.current_week
+max_week = league.current_week
 week = st.slider("Select NFL Week to view", 1,maxWeek, maxWeek)
 
 def team_scores(league, max_week):
