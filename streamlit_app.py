@@ -34,6 +34,9 @@ fig.update_layout(
     yaxis_title="Points Scored",
     legend_title="Team",
 )
+fig.update_layout(xaxis=dict(showgrid=False),
+              yaxis=dict(showgrid=False)
+)
 st.plotly_chart(fig)
 
 
