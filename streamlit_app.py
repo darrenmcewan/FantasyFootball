@@ -11,6 +11,7 @@ league_id = 115999423
 year = 2022
 
 league = League(league_id, year)
+league.refresh()
 
 st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season")
