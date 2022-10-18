@@ -5,7 +5,6 @@ import requests
 import streamlit as st
 from collections import defaultdict
 import plotly.express as px
-import matplotlib.pyplot as plt
 
 
 
@@ -57,5 +56,5 @@ power_ranks = power_rankings(league, week)
 df_pr = pd.DataFrame.from_dict(power_ranks)
 df_pr.index = df_pr.index+1
 df_pr.iloc[:, 1:] = df_pr.iloc[:, 1:].astype(str).astype(float)
-fig_pr = df_pr.plot()
-st.pyplot(fig_pr)
+
+st.line_chart(df_pr)
