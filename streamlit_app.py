@@ -105,3 +105,16 @@ fig_pr.update_layout(
 )
 fig_pr.update_yaxes(showgrid=False)
 st.plotly_chart(fig_pr)
+
+
+colnames = ['Player', 'Percent_owned', 'percent_started', 'position']
+positions = ['QB', 'WR', 'RB', 'TE', 'K']
+
+free_agents = list()
+
+for i in positions:
+  for free_agent in league.free_agents(7, 50, position=i):
+    free_agents.append((free_agent.name, free_agent.percent_owned, free_agent.percent_started, free_agent.position))
+
+df = pd.DataFrame(free_agents, columns = colnames)
+st.dataframe(df)
