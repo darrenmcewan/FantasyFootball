@@ -16,7 +16,7 @@ league.refresh()
 
 st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season Overview")
-st.markdown(f'# Current NFL Week: {league.current_week}', unsafe_allow_html=False)
+st.markdown(f'### Current NFL Week: {league.current_week}', unsafe_allow_html=False)
 
 
 
