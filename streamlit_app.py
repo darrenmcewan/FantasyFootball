@@ -49,16 +49,16 @@ def power_rankings(league, max_week):
         dict_1.setdefault(team, []).append(ranking)
     return dict_1
 
-scores = power_rankings(league, max_week)
-df = pd.DataFrame.from_dict(scores)
-df.index = df.index+1
-fig = px.line(df)
-fig.update_layout(
+power_ranks = power_rankings(league, max_week)
+df_pr = pd.DataFrame.from_dict(power_ranks)
+df_pr.index = df_pr.index+1
+fig_pr = px.line(df_pr)
+fig_pr.update_layout(
     title="Week by Week Power Ranking",
     xaxis_title="Week Num",
     yaxis_title="Power Ranking",
     legend_title="Team",
 )
-fig.update_yaxes(showgrid=False)
-fig.update_yaxes(autorange="reversed")
-st.plotly_chart(fig)
+fig_pr.update_yaxes(showgrid=False)
+fig_pr.update_yaxes(autorange="reversed")
+st.plotly_chart(fig_pr)
