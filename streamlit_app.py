@@ -28,6 +28,12 @@ scores = team_scores(league, week)
 df = pd.DataFrame.from_dict(scores)
 df.index = df.index+1
 fig = px.line(df)
+fig.update_layout(
+    title="Plot Title",
+    xaxis_title="X Axis Title",
+    yaxis_title="Y Axis Title",
+    legend_title="Legend Title",
+)
 st.plotly_chart(fig)
 
 
