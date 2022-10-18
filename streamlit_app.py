@@ -5,7 +5,7 @@ import requests
 import streamlit as st
 from collections import defaultdict
 import plotly.express as px
-
+from statistics import variance
 
 
 league_id = 115999423
