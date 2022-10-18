@@ -13,6 +13,8 @@ year = 2022
 
 league = League(league_id, year)
 league.refresh()
+st.markdown(f'# Current NFL Week: {league.current_week}', unsafe_allow_html=False)
+
 
 st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season Overview")
