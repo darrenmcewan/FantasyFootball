@@ -5,6 +5,8 @@ import requests
 import streamlit as st
 from collections import defaultdict
 import plotly.express as px
+import matplotlib.pyplot as plt
+
 
 
 league_id = 115999423
