@@ -14,7 +14,7 @@ league = League(league_id, year)
 league.refresh()
 
 st.title("Sunnyvale Ballers")
-st.subheader(f"{league.year} Season")
+st.subheader(f"{league.year} Season Overview")
 
 max_week = league.current_week-1
 week = st.slider("Select NFL Week to view", 1,max_week, max_week)
@@ -25,9 +25,17 @@ def team_scores(league, week):
         teams[team.team_name] = team.scores[:week]
     return dict(teams)
 
+def power_rankings(league, week):
+    dict_1=dict()
+    for i in range(week):
+      power_rankings = league.power_rankings(i)
+      for ranking,team in power_rankings:
+        dict_1.setdefault(team, []).append(ranking)
+    return dict_1
+
+
+## Weekly scores
 scores = team_scores(league, week)
-
-
 df = pd.DataFrame.from_dict(scores)
 df.index = df.index+1
 fig = px.line(df)
@@ -41,25 +49,11 @@ fig.update_yaxes(showgrid=False)
 st.plotly_chart(fig)
 
 
-def power_rankings(league, week):
-    dict_1=dict()
-    for i in range(week):
-      power_rankings = league.power_rankings(i)
-      
-      for ranking,team in power_rankings:
-        dict_1.setdefault(team, []).append(ranking)
-    return dict_1
 
+##power ranking
 power_ranks = power_rankings(league, week)
 df_pr = pd.DataFrame.from_dict(power_ranks)
 df_pr.index = df_pr.index+1
-fig_pr = px.line(df_pr)
-fig_pr.update_layout(
-    title="Week by Week Power Ranking",
-    xaxis_title="Week Num",
-    yaxis_title="Power Ranking",
-    legend_title="Team",
-)
-fig_pr.update_yaxes(showgrid=False)
-fig_pr.update_yaxes(autorange="reversed")
-st.plotly_chart(fig_pr)
+df_pr.iloc[:, 1:] = df_pr.iloc[:, 1:].astype(str).astype(float)
+fig_pr = df_pr.plot()
+st.pyplot(fig_pr)
