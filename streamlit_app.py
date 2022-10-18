@@ -40,16 +40,16 @@ fig.update_yaxes(showgrid=False)
 st.plotly_chart(fig)
 
 
-def power_rankings(league, max_week):
+def power_rankings(league, week):
     dict_1=dict()
-    for i in range(max_week):
+    for i in range(week):
       power_rankings = league.power_rankings(i)
       
       for ranking,team in power_rankings:
         dict_1.setdefault(team, []).append(ranking)
     return dict_1
 
-power_ranks = power_rankings(league, max_week)
+power_ranks = power_rankings(league, week)
 df_pr = pd.DataFrame.from_dict(power_ranks)
 df_pr.index = df_pr.index+1
 fig_pr = px.line(df_pr)
