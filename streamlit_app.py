@@ -18,9 +18,6 @@ st.subheader(f"{league.year} Season")
 max_week = league.current_week-1
 week = st.slider("Select NFL Week to view", 1,max_week, max_week)
 
-
-
-
 def team_scores(league, week):
     teams = defaultdict()
     for team in league.teams:
@@ -46,9 +43,9 @@ st.plotly_chart(fig)
 def power_rankings(league, max_week):
     dict_1=dict()
     for i in range(max_week):
-        power_rankings = league.power_rankings(i)
-    
-    for ranking,team in power_rankings:
+      power_rankings = league.power_rankings(i)
+      
+      for ranking,team in power_rankings:
         dict_1.setdefault(team, []).append(ranking)
     return dict_1
 
