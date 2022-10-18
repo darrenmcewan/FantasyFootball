@@ -54,10 +54,16 @@ df = pd.DataFrame.from_dict(scores)
 df.index = df.index+1
 fig = px.line(df)
 fig.update_layout(
-    title="Scores Through the Weeks",
+    title="Week by Week Power Ranking",
     xaxis_title="Week Num",
-    yaxis_title="Points Scored",
+    yaxis_title="Power Ranking",
     legend_title="Team",
 )
 fig.update_yaxes(showgrid=False)
+fig.update_layout(
+    scene={
+        'yaxis': {'autorange': 'reversed'}, # reverse automatically
+        
+    }
+)
 st.plotly_chart(fig)
