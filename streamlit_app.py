@@ -62,7 +62,7 @@ fig.update_layout(
 fig.update_yaxes(showgrid=False)
 fig.update_layout(
     scene={
-        'yaxis': {'autorange': 'reversed'}, # reverse automatically
+        'yaxis': {'range': (10,40)}, # reverse automatically
         
     }
 )
