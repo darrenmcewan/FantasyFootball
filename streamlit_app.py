@@ -20,7 +20,7 @@ week = st.slider("Select NFL Week to view", 1,max_week, max_week)
 def team_scores(league, week):
     teams = defaultdict()
     for team in league.teams:
-            teams[team.team_name] = team.scores[:week]
+            teams[team.team_name] = team.scores[:week+1]
     return dict(teams)
 
 scores = team_scores(league, week)
