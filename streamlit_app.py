@@ -57,4 +57,13 @@ df_pr = pd.DataFrame.from_dict(power_ranks)
 df_pr.index = df_pr.index+1
 df_pr.iloc[:, 1:] = df_pr.iloc[:, 1:].astype(str).astype(float)
 
-st.line_chart(df_pr)
+
+fig_pr = px.line(df_pr)
+fig_pr.update_layout(
+    title="Week by Week Power Rankings",
+    xaxis_title="Week Num",
+    yaxis_title="Power Ranking",
+    legend_title="Team",
+)
+fig_pr.update_yaxes(showgrid=False)
+st.plotly_chart(fig_pr)
