@@ -14,11 +14,26 @@ year = 2022
 league = League(league_id, year)
 league.refresh()
 
+best_matchup = 100
+ind=0
+for i, match in enumerate(league.scoreboard()):
+  matchupVar = variance([match.home_team.standing, match.away_team.standing])
+  print(matchupVar)
+  if matchupVar < best_matchup:
+    best_matchup = matchupVar
+    ind=i
+
+matchup_week = league.scoreboard()[ind]
+
 st.title("Sunnyvale Ballers")
 st.subheader(f"{league.year} Season Overview")
 st.markdown(f'### Current NFL Week: {league.current_week}', unsafe_allow_html=False)
-
-
+st.markdown(f'#### This weeks matchup of the week is {matchup_week.home_team.team_name} ({matchup_week.home_team.standing}) vs {matchup_week.away_team.team_name} ({matchup_week.away_team.standing})')
+projected_winner = league.box_scores()[ind].home_projected > league.box_scores()[ind].away_projected
+if projected_winner:
+  st.markdown(f"#### The home team {league.box_scores()[ind].home_team.team_name} is expected to win with {league.box_scores()[ind].home_projected}")
+else:
+  st.markdown(f"#### The away team {league.box_scores()[ind].away_team.team_name} is expected to win with {league.box_scores()[ind].away_projected}")
 
 
 max_week = league.current_week-1
