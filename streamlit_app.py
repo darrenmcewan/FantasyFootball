@@ -48,19 +48,21 @@ def melt(df, col_vals, key, value):
     return melted
 
 
+col1, col2 = st.columns(2)
 ## Weekly scores
 scores = team_scores(league, week)
 df = pd.DataFrame.from_dict(scores)
 df.index = df.index+1
-fig = px.line(df)
-fig.update_layout(
-    title="Scores Through the Weeks",
-    xaxis_title="Week Num",
-    yaxis_title="Points Scored",
-    legend_title="Team",
-)
-fig.update_yaxes(showgrid=False)
-st.plotly_chart(fig)
+with col1:
+    fig = px.line(df)
+    fig.update_layout(
+        title="Scores Through the Weeks",
+        xaxis_title="Week Num",
+        yaxis_title="Points Scored",
+        legend_title="Team",
+    )
+    fig.update_yaxes(showgrid=False)
+    st.plotly_chart(fig)
 
 
 
@@ -76,13 +78,13 @@ melted = melt(df_pr, df_pr.iloc[:, 1:], key='Team', value='Power Ranking')
 melted_df = melted[['Week', 'Team', 'Power Ranking']]
 
 
-
-fig_pr = px.line(melted_df, x='Week', y='Power Ranking', color='Team')
-fig_pr.update_layout(
-    title="Week by Week Power Rankings",
-    xaxis_title="Week Num",
-    yaxis_title="Power Ranking",
-    legend_title="Team",
-)
-fig_pr.update_yaxes(showgrid=False)
-st.plotly_chart(fig_pr)
+with col2: 
+    fig_pr = px.line(melted_df, x='Week', y='Power Ranking', color='Team')
+    fig_pr.update_layout(
+        title="Week by Week Power Rankings",
+        xaxis_title="Week Num",
+        yaxis_title="Power Ranking",
+        legend_title="Team",
+    )
+    fig_pr.update_yaxes(showgrid=False)
+    st.plotly_chart(fig_pr)
