@@ -34,6 +34,19 @@ def power_rankings(league, week):
         dict_1.setdefault(team, []).append(ranking)
     return dict_1
 
+def melt(df, col_vals, key, value):
+    assert type(df) is pd.DataFrame
+    keep_vars = df.columns.difference(col_vals)
+    melted_sections = []
+    for c in col_vals:
+        melted_c = df[keep_vars].copy()
+        melted_c[key] = c
+        melted_c[value] = df[c]
+        melted_sections.append(melted_c)
+    melted = pd.concat(melted_sections)
+    
+    return melted
+
 
 ## Weekly scores
 scores = team_scores(league, week)
@@ -54,11 +67,17 @@ st.plotly_chart(fig)
 ##power ranking
 power_ranks = power_rankings(league, week)
 df_pr = pd.DataFrame.from_dict(power_ranks)
+df_pr.iloc[:, 0:] = df_pr.iloc[:, 0:].astype(str).astype(float)
 df_pr.index = df_pr.index+1
-df_pr.iloc[:, 1:] = df_pr.iloc[:, 1:].astype(str).astype(float)
+df_pr.reset_index(inplace=True)
+df_pr = df_pr.rename(columns = {'index':'Week'})
+
+melted = melt(df_pr, df_pr.iloc[:, 1:], key='Team', value='Power Ranking')
+melted_df = melted[['Week', 'Team', 'Power Ranking']]
 
 
-fig_pr = px.line(df_pr)
+
+fig_pr = px.line(melted_df, x='Week', y='Power Ranking', color='Team')
 fig_pr.update_layout(
     title="Week by Week Power Rankings",
     xaxis_title="Week Num",
