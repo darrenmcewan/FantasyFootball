@@ -46,7 +46,7 @@ with col2:
     def power_rankings(league, max_week):
         dict_1=dict()
         for i in range(max_week):
-        power_rankings = league.power_rankings(i)
+            power_rankings = league.power_rankings(i)
         
         for ranking,team in power_rankings:
             dict_1.setdefault(team, []).append(ranking)
