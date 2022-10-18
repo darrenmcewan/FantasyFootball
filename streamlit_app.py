@@ -60,10 +60,5 @@ fig.update_layout(
     legend_title="Team",
 )
 fig.update_yaxes(showgrid=False)
-fig.update_layout(
-    scene={
-        'yaxis': {'range': (10,40)}, # reverse automatically
-        
-    }
-)
+fig.update_yaxes(autorange="reversed")
 st.plotly_chart(fig)
