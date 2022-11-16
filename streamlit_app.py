@@ -122,3 +122,4 @@ df = pd.DataFrame(free_agents, columns=colnames)
 st.dataframe(df)
 
 st.text("This is a test")
+st.title("TEST")
