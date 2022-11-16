@@ -17,7 +17,6 @@ best_matchup = 100
 ind = 0
 for i, match in enumerate(league.scoreboard()):
     matchupVar = variance([match.home_team.standing, match.away_team.standing])
-    print(matchupVar)
     if matchupVar < best_matchup:
         best_matchup = matchupVar
         ind = i
@@ -123,5 +122,10 @@ for i in selected_positions:
 df = pd.DataFrame(free_agents, columns=colnames)
 st.dataframe(df)
 
-st.text("This is a test")
-st.title("TEST")
+#Create plot showing unlucky win, lucky win, unlucky loss, lucky loss, quadrants
+
+df2 = pd.DataFrame(scores)
+
+st.dataframe(df)
+
+st.text(df.describe())
