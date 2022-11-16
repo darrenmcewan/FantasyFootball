@@ -126,6 +126,6 @@ st.dataframe(df)
 
 df2 = pd.DataFrame(scores)
 
-st.dataframe(df)
+st.dataframe(df2)
 
-st.text(df.describe())
+st.text(df2.describe())
