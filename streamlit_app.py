@@ -111,8 +111,10 @@ colnames = ['Player', 'Percent_owned', 'percent_started', 'projected_points', 'p
 positions = ['QB', 'WR', 'RB', 'TE', 'K']
 
 free_agents = list()
+st.markdown(f"### Week {max_week} Free Agents")
+selected_positions = st.multiselect("Select Free Agent Position", positions)
 
-for i in positions:
+for i in selected_positions:
     for free_agent in league.free_agents(7, 50, position=i):
         free_agents.append((free_agent.name, free_agent.percent_owned, free_agent.percent_started,
                             free_agent.projected_points, free_agent.posRank, free_agent.position,
