@@ -8,6 +8,19 @@ import plotly.express as px
 from statistics import variance
 import re
 from datetime import datetime
+import snowflake.connector
+from snowflake.connector.pandas_tools import write_pandas
+
+conn = snowflake.connector.connect(
+    user=st.secrets["user"],
+    password=st.secrets["password"],
+    account=st.secrets["account"],
+    warehouse=st.secrets["warehouse"],
+    database=st.secrets["database"],
+    schema=st.secrets["schema"]
+)
+cursor = conn.cursor()
+
 
 class Trophies:
     def __init__(self, league, week):
@@ -16,50 +29,20 @@ class Trophies:
         pass
 
     def high_score(self):
-        high_score = self.league.top_scorer()
-        pattern = r'\(([^)]+)\)'
-        match = re.search(pattern, str(high_score))
-        extracted_text = match.group(1)
-        return extracted_text
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Highest Score'").fetchone()
+    
 
     def low_score(self):
-        low_score = self.league.least_scorer()
-        pattern = r'\(([^)]+)\)'
-        match = re.search(pattern, str(low_score))
-        extracted_text = match.group(1)
-        return extracted_text
-
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Lowest Score'").fetchone()
 
     def blow_out(self):
-        matchups = self.league.scoreboard(week=self.week)
-        biggest_score_diff = 0
-        for matchup in matchups:
-            score_diff = abs(matchup.home_score - matchup.away_score)
-            if score_diff > biggest_score_diff:
-                biggest_score_diff = score_diff
-                biggest_score_diff_matchup = matchup
-
-        if biggest_score_diff_matchup.home_score > biggest_score_diff_matchup.away_score:
-            output = f"{biggest_score_diff_matchup.home_team.team_name} won by **{round(biggest_score_diff, 2)}** points!"
-        else:
-            output = f"{biggest_score_diff_matchup.away_team.team_name} won by **{round(biggest_score_diff, 2)}** points!"
-        return output
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Biggest Blowout'").fetchone()
 
 
     def close_win(self):
-        matchups = self.league.scoreboard(week=self.week)
-        smallest_score_diff = 1000
-        for matchup in matchups:
-            score_diff = abs(matchup.home_score - matchup.away_score)
-            if score_diff < smallest_score_diff:
-                smallest_score_diff = score_diff
-                smallest_score_diff_matchup = matchup
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Closest Win'").fetchone()
 
-        if smallest_score_diff_matchup.home_score > smallest_score_diff_matchup.away_score:
-            output = f"{smallest_score_diff_matchup.home_team.team_name} narrowly won by **{round(smallest_score_diff, 2)}** points!"
-        else:
-            output = f"{smallest_score_diff_matchup.away_team.team_name} narrowly won by **{round(smallest_score_diff, 2)}** points!"
-        return output
+
     def lucky_win(self):
         league = self.league
         league_scores = {league.teams[i].team_name: league.teams[i].scores[0] for i in range(len(league.teams))}
@@ -204,33 +187,19 @@ class Trophies:
 
 
     def overachiever(self):
-        overachievers = {"team": "", "difference": 0}
-        for matchup in league.box_scores(week=1):
-            if matchup.home_projected - matchup.home_score < overachievers['difference']:
-                overachievers["team"] = matchup.home_team.team_name
-                overachievers["difference"] = matchup.home_projected - matchup.home_score
-            if matchup.away_projected - matchup.away_score < overachievers['difference']:
-                overachievers["team"] = matchup.away_team.team_name
-                overachievers["difference"] = matchup.away_projected - matchup.away_score
-        return f"{overachievers['team']} was **{abs(round(overachievers['difference'], 2))}** points over their projection"
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Overachiever'").fetchone()
+
 
     def underachiever(self):
-        league = self.league
-        underachievers = {"team": "", "difference": 0}
-        for matchup in league.box_scores(week=1):
-            if matchup.home_projected - matchup.home_score > underachievers['difference']:
-                underachievers["team"] = matchup.home_team.team_name
-                underachievers["difference"] = matchup.home_projected - matchup.home_score
-            if matchup.away_projected - matchup.away_score > underachievers['difference']:
-                underachievers["team"] = matchup.away_team.team_name
-                underachievers["difference"] = matchup.away_projected - matchup.away_score
-        return f"{underachievers['team']} was **{round(underachievers['difference'], 2)}** points under their projection"
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Underachiever'").fetchone()
+
 
     def best_manager(self):
-        pass
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Best Manager'").fetchone()
+
 
     def worst_manager(self):
-        pass
+        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Worst Manager'").fetchone()
 
 
 
@@ -263,12 +232,9 @@ def melt(df, col_vals, key, value):
 
     return melted
 
-league_id = 804979303
 year = 2023
 
-s2 = "AECrKRgF3ZyvfDcC2AM6K2UqRIc0gjB8gluwpbueZS3iDxR0fqimN2PtIinDV3t0QDi54c0O4rfC5%2F81ICoPNcaEk7x1HydnlvWb6wlwXi06ndzZc0mKD%2BUPZOEhld0F5LsbLMgRSz%2Bbd7IuXxoZk9%2F7NoHzBI6G1Q2m5lKwGz1V2xGyWOqNc9NvkD0QJw8%2FOrVVcETlvoW5LbDCJtQbgRtesdJD396ppalxHmJMExl6geUib2CKenpRQJfIxlARmSG5mbRRXbF5CBPshpwQS2jhkYc8rkZooK%2B8udZTI7%2BQXg%3D%3D"
-swid = "{BB1E4E35-4F5B-4919-9BD2-AF0C3F972162}"
-league = League(league_id=league_id, year=year, espn_s2=s2, swid=swid)
+league = League(league_id=st.secrets["league_id"], year=year, espn_s2=st.secrets["s2"], swid=st.secrets["swid"])
 league.refresh()
 
 best_matchup = 100
