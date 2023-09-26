@@ -235,7 +235,6 @@ def melt(df, col_vals, key, value):
 year = 2023
 
 league = League(league_id=st.secrets["league_id"], year=year, espn_s2=st.secrets["s2"], swid=st.secrets["swid"])
-league.refresh()
 
 best_matchup = 100
 ind = 0
@@ -268,17 +267,16 @@ with st.sidebar:
 
     st.markdown(f"# Trophies of Week {selected_matchup}")
     Trophies = Trophies(league, selected_matchup)
-    st.markdown(f"### 👑 High Score 👑\n {Trophies.high_score()} with **{team_scores(league, selected_matchup)[Trophies.high_score()][selected_matchup-1]}** points")
-    st.markdown(f"### 💩 Low Score 💩\n {Trophies.low_score()} with **{team_scores(league, selected_matchup)[Trophies.low_score()][selected_matchup-1]}** points")
-    st.markdown(f"### 🤯 Blowout 🤯 \n {Trophies.blow_out()}")
-    st.markdown(f"### 😅 Close Win 😅 \n {Trophies.close_win()}")
+    st.markdown(f"### 👑 High Score 👑\n {Trophies.high_score()[0]} with **{round(float(Trophies.high_score()[1]),2)}** points")
+    st.markdown(f"### 💩 Low Score 💩\n {Trophies.low_score()[0]} with **{round(float(Trophies.low_score()[1]),2)}** points")
+    st.markdown(f"### 🤯 Blowout 🤯 \n {Trophies.blow_out()[0]} had the laregest spread with {round(float(Trophies.blow_out()[1]),2)} points")
+    st.markdown(f"### 😅 Close Win 😅 \n The closest spread was {Trophies.close_win()[0]} with {round(float(Trophies.close_win()[1]),2)} points!")
     st.markdown(f"### 🍀 Lucky Win 🍀 \n {Trophies.lucky_win()}")
     st.markdown(f"### 🥺 Unlucky Loss 🥺 \n {Trophies.unlucky_loss()}")
-    st.markdown(f"### 📈 Overachiever 📈 \n {Trophies.overachiever()}")
-    st.markdown(f"### 📉 Underachiever 📉 \n {Trophies.underachiever()}")
-    st.markdown(f"### 🤖 Best Manager 🤖 \n {Trophies.best_manager()}")
-    st.markdown(f"### 🤡 Worst Manager 🤡 \n {Trophies.worst_manager()}")
-
+    st.markdown(f"### 📈 Overachiever 📈 \n {Trophies.overachiever()[0]} was {round(float(Trophies.overachiever()[1]),2)} points over their projected score")
+    st.markdown(f"### 📉 Underachiever 📉 \n {Trophies.underachiever()[0]} was {round(float(Trophies.underachiever()[1]),2)} points under their projected score")
+    st.markdown(f"### 🤖 Best Manager 🤖 \n {Trophies.best_manager()[0]} had the most optimal lineup - only leaving {round(float(Trophies.best_manager()[1]),2)} points")
+    st.markdown(f"### 🤡 Worst Manager 🤡 \n {Trophies.worst_manager()[0]} had the least optimal lineup - leaving {round(float(Trophies.worst_manager()[1]),2)} points")
 
 
 stats, free_agents, recent_activity = st.tabs(["Stats", "Free Agents", "Recent Activity"])

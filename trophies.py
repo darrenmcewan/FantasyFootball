@@ -5,12 +5,12 @@ from snowflake.connector.pandas_tools import write_pandas
 import streamlit as st
 
 conn = snowflake.connector.connect(
-    user='dmcewan',
-    password='hde7UEM@ecu2dnu1tvz',
-    account='wkb52928.prod3.us-west-2.aws',
-    warehouse='ff_etl_wh',
-    database='FANTASYFOOTBALL',
-    schema='griddys_heros_23'
+    user=st.secrets["user"],
+    password=st.secrets["password"],
+    account=st.secrets["account"],
+    warehouse=st.secrets["warehouse"],
+    database=st.secrets["database"],
+    schema=st.secrets["schema"]
 )
 
 cursor = conn.cursor()
@@ -71,7 +71,7 @@ for i in range(1, league.nfl_week):
 
     underachiever = cursor.execute(f'''select team_name, (team_score - team_projected) as diff from games
     where week_num = {i}
-    order by 2 desc
+    order by 2 asc
     limit 1;''').fetchone()
 
     cursor.execute('''insert into TROPHIES (week_num, team_name, trophy_name, note) values (%s, %s, %s, %s)''',
