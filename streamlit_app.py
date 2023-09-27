@@ -21,196 +21,26 @@ conn = snowflake.connector.connect(
 )
 cursor = conn.cursor()
 
-
-class Trophies:
-    def __init__(self, league, week):
-        self.league = league
-        self.week = week
-        pass
-
-    def high_score(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Highest Score'").fetchone()
-    
-
-    def low_score(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Lowest Score'").fetchone()
-
-    def blow_out(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Biggest Blowout'").fetchone()
+@st.cache_data
+def get_data(_cursor):
+    players = cursor.execute("select * from players;").fetch_pandas_all()
+    games = cursor.execute("select * from games;").fetch_pandas_all()
+    trophies = cursor.execute("select * from trophies;").fetch_pandas_all()
+    activity = cursor.execute("select * from activity;").fetch_pandas_all()
+    rosters = cursor.execute("select * from rosters;").fetch_pandas_all()
+    teams = cursor.execute("select * from teams;").fetch_pandas_all()
+    return players, games, trophies, activity, rosters, teams
 
 
-    def close_win(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Closest Win'").fetchone()
-
-
-    def lucky_win(self):
-        league = self.league
-        league_scores = {league.teams[i].team_name: league.teams[i].scores[0] for i in range(len(league.teams))}
-        records = {}
-        for team, score in league_scores.items():
-            wins = 0
-            losses = 0
-
-            for opponent, opponent_score in league_scores.items():
-                if team != opponent:
-                    if score > opponent_score:
-                        wins += 1
-                    else:
-                        losses += 1
-
-            total_games = wins + losses
-            win_percentage = (wins / total_games) * 100
-            loss_percentage = (losses / total_games) * 100
-            matchups = league.scoreboard(week=1)
-
-            # find out if they won their game this week
-            for matchup in matchups:
-                if matchup.home_team.team_name == team:
-                    if matchup.home_score > matchup.away_score:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 1
-                        }
-                    else:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 0
-                        }
-                elif matchup.away_team.team_name == team:
-                    if matchup.away_score > matchup.home_score:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 1
-                        }
-                    else:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 0
-                        }
-
-        lucky_victory = {
-            "Team": "",
-            "W-L Record": "",
-            "Win Percentage": 100,
-            "Loss Percentage": 0,
-            "Outcome": 0
-        }
-
-        for team, record in records.items():
-            if record["Outcome"] == 1 and record["Win Percentage"] < lucky_victory["Win Percentage"]:
-                lucky_victory["Team"] = team
-                lucky_victory["W-L Record"] = record["W-L Record"]
-                lucky_victory["Win Percentage"] = record["Win Percentage"]
-                lucky_victory["Loss Percentage"] = record["Loss Percentage"]
-                lucky_victory["Outcome"] = record["Outcome"]
-
-        return f"{lucky_victory['Team']} went **{lucky_victory['W-L Record']}** against the league but still caught the dub"
-
-    def unlucky_loss(self):
-        league = self.league
-        league_scores = {league.teams[i].team_name: league.teams[i].scores[0] for i in range(len(league.teams))}
-        records = {}
-        for team, score in league_scores.items():
-            wins = 0
-            losses = 0
-
-            for opponent, opponent_score in league_scores.items():
-                if team != opponent:
-                    if score > opponent_score:
-                        wins += 1
-                    else:
-                        losses += 1
-
-            total_games = wins + losses
-            win_percentage = (wins / total_games) * 100
-            loss_percentage = (losses / total_games) * 100
-            matchups = league.scoreboard(week=1)
-
-            # find out if they won their game this week
-            for matchup in matchups:
-                if matchup.home_team.team_name == team:
-                    if matchup.home_score > matchup.away_score:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 1
-                        }
-                    else:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 0
-                        }
-                elif matchup.away_team.team_name == team:
-                    if matchup.away_score > matchup.home_score:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 1
-                        }
-                    else:
-                        records[team] = {
-                            "W-L Record": f"{wins}-{losses}",
-                            "Win Percentage": win_percentage,
-                            "Loss Percentage": loss_percentage,
-                            "Outcome": 0
-                        }
-        unlucky_loss = {
-            "Team": "",
-            "W-L Record": "",
-            "Win Percentage": 0,
-            "Loss Percentage": 100,
-            "Outcome": 1
-        }
-
-        for team, record in records.items():
-            if record["Outcome"] == 0 and record["Win Percentage"] > unlucky_loss["Win Percentage"]:
-                unlucky_loss["Team"] = team
-                unlucky_loss["W-L Record"] = record["W-L Record"]
-                unlucky_loss["Win Percentage"] = record["Win Percentage"]
-                unlucky_loss["Loss Percentage"] = record["Loss Percentage"]
-                unlucky_loss["Outcome"] = record["Outcome"]
-
-        return f"{unlucky_loss['Team']} went **{unlucky_loss['W-L Record']}** against the league but went down with the L"
-
-
-
-    def overachiever(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Overachiever'").fetchone()
-
-
-    def underachiever(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Underachiever'").fetchone()
-
-
-    def best_manager(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Best Manager'").fetchone()
-
-
-    def worst_manager(self):
-        return cursor.execute(f"select team_name, note from trophies where week_num = {self.week} and trophy_name = 'Worst Manager'").fetchone()
-
-
-
-def team_scores(league, week):
+@st.cache_data
+def team_scores(_league, week):
     teams = defaultdict()
     for team in league.teams:
         teams[team.team_name] = team.scores[:week]
     return dict(teams)
 
-
-def power_rankings(league, week):
+@st.cache_data
+def power_rankings(_league, week):
     dict_1 = dict()
     for i in range(week):
         power_rankings = league.power_rankings(i)
@@ -235,6 +65,7 @@ def melt(df, col_vals, key, value):
 year = 2023
 
 league = League(league_id=st.secrets["league_id"], year=year, espn_s2=st.secrets["s2"], swid=st.secrets["swid"])
+players, games, trophies, activity, rosters, teams = get_data(cursor)
 
 best_matchup = 100
 ind = 0
@@ -253,35 +84,44 @@ st.markdown(
     f'#### This weeks matchup of the week is {matchup_week.home_team.team_name} ({matchup_week.home_team.standing}) vs {matchup_week.away_team.team_name} ({matchup_week.away_team.standing})')
 projected_winner = league.box_scores()[ind].home_projected > league.box_scores()[ind].away_projected
 if projected_winner:
-    st.markdown(
-        f"{league.box_scores()[ind].home_team.team_name} is expected to win **{league.box_scores()[ind].home_projected}** - {league.box_scores()[ind].away_projected}")
+    st.markdown(f"{league.box_scores()[ind].home_team.team_name} is expected to win **{league.box_scores()[ind].home_projected}** - {league.box_scores()[ind].away_projected}")
 else:
-    st.markdown(
-        f" {league.box_scores()[ind].away_team.team_name} is expected to win **{league.box_scores()[ind].away_projected}** - {league.box_scores()[ind].home_projected}")
+    st.markdown(f" {league.box_scores()[ind].away_team.team_name} is expected to win **{league.box_scores()[ind].away_projected}** - {league.box_scores()[ind].home_projected}")
 
 
 with st.sidebar:
     max_week = league.current_week
-    week = st.slider("Select NFL Week to view", 0, max_week, max_week)
     selected_matchup = st.selectbox("Select Week", range(1, max_week), index=0)
 
     st.markdown(f"# Trophies of Week {selected_matchup}")
-    Trophies = Trophies(league, selected_matchup)
-    st.markdown(f"### 👑 High Score 👑\n {Trophies.high_score()[0]} with **{round(float(Trophies.high_score()[1]),2)}** points")
-    st.markdown(f"### 💩 Low Score 💩\n {Trophies.low_score()[0]} with **{round(float(Trophies.low_score()[1]),2)}** points")
-    st.markdown(f"### 🤯 Blowout 🤯 \n {Trophies.blow_out()[0]} had the laregest spread with {round(float(Trophies.blow_out()[1]),2)} points")
-    st.markdown(f"### 😅 Close Win 😅 \n The closest spread was {Trophies.close_win()[0]} with {round(float(Trophies.close_win()[1]),2)} points!")
-    st.markdown(f"### 🍀 Lucky Win 🍀 \n {Trophies.lucky_win()}")
-    st.markdown(f"### 🥺 Unlucky Loss 🥺 \n {Trophies.unlucky_loss()}")
-    st.markdown(f"### 📈 Overachiever 📈 \n {Trophies.overachiever()[0]} was {round(float(Trophies.overachiever()[1]),2)} points over their projected score")
-    st.markdown(f"### 📉 Underachiever 📉 \n {Trophies.underachiever()[0]} was {round(float(Trophies.underachiever()[1]),2)} points under their projected score")
-    st.markdown(f"### 🤖 Best Manager 🤖 \n {Trophies.best_manager()[0]} had the most optimal lineup - only leaving {round(float(Trophies.best_manager()[1]),2)} points")
-    st.markdown(f"### 🤡 Worst Manager 🤡 \n {Trophies.worst_manager()[0]} had the least optimal lineup - leaving {round(float(Trophies.worst_manager()[1]),2)} points")
+    high_score = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Highest Score')][['TEAM_NAME', 'NOTE']]
+    low_score = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Lowest Score')][['TEAM_NAME', 'NOTE']]
+    blow_out = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Biggest Blowout')][['TEAM_NAME', 'NOTE']]
+    close_win = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Closest Win')][['TEAM_NAME', 'NOTE']]
+    #lucky_win = trophies[(trophies['WEEK_NUM'] == 3) & (trophies['TROPHY_NAME'] == 'Highest Score')][['TEAM_NAME', 'NOTE']]
+    #unlucky_loss = trophies[(trophies['WEEK_NUM'] == 3) & (trophies['TROPHY_NAME'] == 'Highest Score')][['TEAM_NAME', 'NOTE']]
+    overachiever = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Overachiever')][['TEAM_NAME', 'NOTE']]
+    underachiever = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Underachiever')][['TEAM_NAME', 'NOTE']]
+    best_manager = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Best Manager')][['TEAM_NAME', 'NOTE']]
+    worst_manager = trophies[(trophies['WEEK_NUM'] == selected_matchup) & (trophies['TROPHY_NAME'] == 'Worst Manager')][['TEAM_NAME', 'NOTE']]
+
+
+    st.markdown(f"### 👑 High Score 👑\n {high_score['TEAM_NAME'].values[0]} with **{high_score['NOTE'].values[0]}** points")
+    st.markdown(f"### 💩 Low Score 💩\n {low_score['TEAM_NAME'].values[0]} with **{low_score['NOTE'].values[0]}** points")
+    st.markdown(f"### 🤯 Blowout 🤯 \n {blow_out['TEAM_NAME'].values[0]} had the laregest spread with {blow_out['TEAM_NAME'].values[0]} points")
+    st.markdown(f"### 😅 Close Win 😅 \n The closest spread was {close_win['TEAM_NAME'].values[0]} with {close_win['TEAM_NAME'].values[0]} points!")
+    st.markdown(f"### 🍀 Lucky Win 🍀 \n {high_score['TEAM_NAME'].values[0]}")
+    st.markdown(f"### 🥺 Unlucky Loss 🥺 \n {high_score['TEAM_NAME'].values[0]}")
+    st.markdown(f"### 📈 Overachiever 📈 \n {overachiever['TEAM_NAME'].values[0]} was {overachiever['TEAM_NAME'].values[0]} points over their projected score")
+    st.markdown(f"### 📉 Underachiever 📉 \n {underachiever['TEAM_NAME'].values[0]} was {underachiever['TEAM_NAME'].values[0]} points under their projected score")
+    st.markdown(f"### 🤖 Best Manager 🤖 \n {best_manager['TEAM_NAME'].values[0]} had the most optimal lineup - only leaving {best_manager['TEAM_NAME'].values[0]} points")
+    st.markdown(f"### 🤡 Worst Manager 🤡 \n {worst_manager['TEAM_NAME'].values[0]} had the least optimal lineup - leaving {worst_manager['TEAM_NAME'].values[0]} points")
 
 
 stats, free_agents, recent_activity = st.tabs(["Stats", "Free Agents", "Recent Activity"])
 
 with stats:
+    week = st.slider("Select NFL Week to view", 0, max_week, max_week)
 
     scores = team_scores(league, week)
     df = pd.DataFrame.from_dict(scores)
